@@ -1,0 +1,107 @@
+---
+title: "Bootstrapping"
+author: "Hidde van de Beek"
+date: '2023-01-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+```
+
+
+Population distribution
+```{r}
+set.seed(28)
+iq <- rnorm(17000000, mean = 100, sd = 15)
+ggplot(as.data.frame(iq), aes(x=iq)) + 
+ geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
+ geom_density(alpha=.2, fill="#FF6666") 
+```
+
+
+```{r}
+set.seed(28)
+sample.iq <- as.data.frame(iq) %>%
+  rep_slice_sample(n = 300, reps = 10)
+sample.iq$replicate <- as.factor(sample.iq$replicate)
+ggplot(sample.iq, aes(x = iq, fill = replicate)) +
+  geom_density(alpha=.2) +
+  labs(
+    x = "iq", y = "Number of samples",
+    title = "sample distributions of iq"
+  )
+```
+```{r}
+set.seed(28)
+sample_means <- c()
+for(i in 1:2000000){
+  sample_distribution <- rnorm(300, mean=100, sd=15)
+  sample_means$mean[i] <- mean(sample_distribution)
+  sample_means$median[i] <- median(sample_distribution)
+}
+sample_means <- as.data.frame(sample_means)
+ggplot(as.data.frame(sample_means), aes(x=mean)) + 
+ geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
+ geom_density(alpha=.2, fill="#FF6666") 
+ggplot(as.data.frame(sample_means), aes(x=median)) + 
+ geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
+ geom_density(alpha=.2, fill="#FF6666") 
+```
+
+
+```{r}
+set.seed(28)
+resample.iq <- c()
+
+for (i in 1:10){
+  sample.iq2 <-sample.iq %>%
+    filter(replicate == i)
+  count <- 200000*(i-1)
+  for (j in 1:200000){
+    count2 <- count + j 
+    sample.loop <- sample(sample.iq2$iq, 1000, replace = T)
+    resample.iq$mean[count2] <-  mean(sample.loop)
+    resample.iq$median[count2] <-  median(sample.loop)
+    resample.iq$sample[count2] <- i
+  }
+}
+resample.iq <- as.data.frame(resample.iq)
+resample.iq$sample <- as.factor(resample.iq$sample)
+
+ggplot(resample.iq, aes(x = mean, fill = sample)) +
+  geom_density(alpha=.2) +
+  labs(
+    x = "iq", y = "Number of samples",
+    title = "sample distributions of iq (mean)"
+  )
+
+ggplot(resample.iq, aes(x = median, fill = sample)) +
+  geom_density(alpha=.2) +
+  labs(
+    x = "iq", y = "Number of samples",
+    title = "sample distributions of iq (median)"
+  )
+```
+```{r}
+ggplot(resample.iq, aes(median, colour = sample)) + 
+  geom_histogram(aes(y=..density.., fill=sample),position="identity", alpha=0.2, binwidth = 0.1, ) +
+  geom_density() +
+  theme_minimal() 
+```
+
+```{r}
+resample.iq.3 <- resample.iq %>%
+  filter (sample == 3)
+
+quantile(resample.iq.3$median, 0.025)
+quantile(resample.iq.3$median, 0.975)
+
+hist(resample.iq.4$median, breaks = 200)
+```
+
+
+
