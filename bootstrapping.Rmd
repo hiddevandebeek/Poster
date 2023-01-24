@@ -94,13 +94,20 @@ ggplot(resample.iq, aes(median, colour = sample)) +
 ```
 
 ```{r}
-resample.iq.3 <- resample.iq %>%
-  filter (sample == 3)
+sample.iq%>%
+ group_by(replicate) %>%
+  summarise(median = median(iq))
+resample.iq%>%
+ group_by(sample) %>%
+  summarise(interval1 = quantile(median, 0.025),
+            interval2 = quantile(median, 0.975))
 
-quantile(resample.iq.3$median, 0.025)
-quantile(resample.iq.3$median, 0.975)
 
+resample.iq.4 <- resample.iq %>%
+  filter (sample == 4)
 hist(resample.iq.4$median, breaks = 200)
+abline(v = c(96.8652, 100.4217), col = 3)
+abline(v = 98.73071, col = 2)
 ```
 
 
