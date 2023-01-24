@@ -60,10 +60,10 @@ resample.iq <- c()
 for (i in 1:10){
   sample.iq2 <-sample.iq %>%
     filter(replicate == i)
-  count <- 200000*(i-1)
-  for (j in 1:200000){
+  count <- 400000*(i-1)
+  for (j in 1:400000){
     count2 <- count + j 
-    sample.loop <- sample(sample.iq2$iq, 1000, replace = T)
+    sample.loop <- sample(sample.iq2$iq, 300, replace = T)
     resample.iq$mean[count2] <-  mean(sample.loop)
     resample.iq$median[count2] <-  median(sample.loop)
     resample.iq$sample[count2] <- i
@@ -86,12 +86,7 @@ ggplot(resample.iq, aes(x = median, fill = sample)) +
     title = "sample distributions of iq (median)"
   )
 ```
-```{r}
-ggplot(resample.iq, aes(median, colour = sample)) + 
-  geom_histogram(aes(y=..density.., fill=sample),position="identity", alpha=0.2, binwidth = 0.1, ) +
-  geom_density() +
-  theme_minimal() 
-```
+
 
 ```{r}
 sample.iq%>%
@@ -106,8 +101,8 @@ resample.iq%>%
 resample.iq.4 <- resample.iq %>%
   filter (sample == 4)
 hist(resample.iq.4$median, breaks = 200)
-abline(v = c(96.8652, 100.4217), col = 3)
-abline(v = 98.73071, col = 2)
+abline(v = c(96.32375, 101.3259), col = 3)
+abline(v = 98.59492, col = 2)
 ```
 
 
