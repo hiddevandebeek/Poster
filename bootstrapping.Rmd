@@ -10,13 +10,23 @@ knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
 library(dplyr)
 library(tibble)
+library(infer)
+```
+
+```{r}
+seed <- 28
+mean.iq <- 100
+sd.iq <- 15
+samplesize <- 300
+populationsize <- 17000000
+bootstrap.iterations <- 2000000
 ```
 
 
 Population distribution
 ```{r}
-set.seed(28)
-iq <- rnorm(17000000, mean = 100, sd = 15)
+set.seed(seed)
+iq <- rnorm(populationsize, mean = mean.iq, sd = sd.iq)
 ggplot(as.data.frame(iq), aes(x=iq)) + 
  geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
  geom_density(alpha=.2, fill="#FF6666") 
@@ -24,9 +34,8 @@ ggplot(as.data.frame(iq), aes(x=iq)) +
 
 
 ```{r}
-set.seed(28)
 sample.iq <- as.data.frame(iq) %>%
-  rep_slice_sample(n = 300, reps = 10)
+  rep_slice_sample(n = samplesize, reps = 10)
 sample.iq$replicate <- as.factor(sample.iq$replicate)
 ggplot(sample.iq, aes(x = iq, fill = replicate)) +
   geom_density(alpha=.2) +
@@ -36,10 +45,9 @@ ggplot(sample.iq, aes(x = iq, fill = replicate)) +
   )
 ```
 ```{r}
-set.seed(28)
 sample_means <- c()
-for(i in 1:2000000){
-  sample_distribution <- rnorm(300, mean=100, sd=15)
+for(i in 1:bootstrap.iterations){
+  sample_distribution <- sample(iq, samplesize, replace=F)
   sample_means$mean[i] <- mean(sample_distribution)
   sample_means$median[i] <- median(sample_distribution)
 }
@@ -54,16 +62,15 @@ ggplot(as.data.frame(sample_means), aes(x=median)) +
 
 
 ```{r}
-set.seed(28)
 resample.iq <- c()
 
-for (i in 1:10){
+for (i in 1:4){
   sample.iq2 <-sample.iq %>%
     filter(replicate == i)
-  count <- 400000*(i-1)
-  for (j in 1:400000){
+  count <- bootstrap.iterations*(i-1)
+  for (j in 1:bootstrap.iterations){
     count2 <- count + j 
-    sample.loop <- sample(sample.iq2$iq, 300, replace = T)
+    sample.loop <- sample(sample.iq2$iq, samplesize, replace = T)
     resample.iq$mean[count2] <-  mean(sample.loop)
     resample.iq$median[count2] <-  median(sample.loop)
     resample.iq$sample[count2] <- i
@@ -97,12 +104,11 @@ resample.iq%>%
   summarise(interval1 = quantile(median, 0.025),
             interval2 = quantile(median, 0.975))
 
-
-resample.iq.4 <- resample.iq %>%
-  filter (sample == 4)
-hist(resample.iq.4$median, breaks = 200)
-abline(v = c(96.32375, 101.3259), col = 3)
-abline(v = 98.59492, col = 2)
+resample.iq.1 <- resample.iq %>%
+  filter (sample == 1)
+hist(resample.iq.1$median, breaks = 200)
+abline(v = c(96.23779, 100.8129), col = 3)
+abline(v = 98.32161, col = 2)
 ```
 
 
