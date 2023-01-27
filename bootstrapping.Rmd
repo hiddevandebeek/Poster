@@ -29,21 +29,22 @@ set.seed(seed)
 iq <- rnorm(populationsize, mean = mean.iq, sd = sd.iq)
 ggplot(as.data.frame(iq), aes(x=iq)) + 
  geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
- geom_density(alpha=.2, fill="#FF6666") 
+ geom_density(alpha=.2, fill="#FFE6AB") 
 ```
 
 
 ```{r}
+set.seed(seed)
 sample.iq <- as.data.frame(iq) %>%
-  rep_slice_sample(n = samplesize, reps = 10)
+  rep_slice_sample(n = samplesize, reps = 4)
 sample.iq$replicate <- as.factor(sample.iq$replicate)
 ggplot(sample.iq, aes(x = iq, fill = replicate)) +
-  geom_density(alpha=.2) +
+  geom_density(alpha=.4) +
   labs(
-    x = "iq", y = "Number of samples",
-    title = "sample distributions of iq"
-  )
+    x = "IQ", y = "Density",
+  ) + guides(fill=guide_legend(title="Sample")) + scale_fill_manual( values = c("#24A793","#5287C6", "#001240", "#5B2182", "#FFE6AB", "#F3965E", "#AA1555", "#FFCD00", "#C00A35", "#6E3B23")) + theme_minimal() + theme(text = element_text(family = "Verdana"))
 ```
+
 ```{r}
 sample_means <- c()
 for(i in 1:bootstrap.iterations){
@@ -52,9 +53,11 @@ for(i in 1:bootstrap.iterations){
   sample_means$median[i] <- median(sample_distribution)
 }
 sample_means <- as.data.frame(sample_means)
+
 ggplot(as.data.frame(sample_means), aes(x=mean)) + 
- geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
- geom_density(alpha=.2, fill="#FF6666") 
+ geom_histogram(aes(y=after_stat(density)), colour="black", fill="#F3965E", bins = 100, alpha = .7)+
+ geom_density(alpha=.4)+ labs(y = "Density", x = "") + theme_minimal() + theme(text = element_text(family = "Verdana"))
+
 ggplot(as.data.frame(sample_means), aes(x=median)) + 
  geom_histogram(aes(y=after_stat(density)), colour="black", fill="white", bins = 100)+
  geom_density(alpha=.2, fill="#FF6666") 
@@ -80,11 +83,10 @@ resample.iq <- as.data.frame(resample.iq)
 resample.iq$sample <- as.factor(resample.iq$sample)
 
 ggplot(resample.iq, aes(x = mean, fill = sample)) +
-  geom_density(alpha=.2) +
+  geom_density(alpha=.5) +
   labs(
-    x = "iq", y = "Number of samples",
-    title = "sample distributions of iq (mean)"
-  )
+    x = "", y = "Density"
+  ) + guides(fill=guide_legend(title="Sample")) + scale_fill_manual( values = c("#24A793","#5287C6", "#001240", "#5B2182"))  + theme_minimal() + theme(text = element_text(family = "Verdana"))
 
 ggplot(resample.iq, aes(x = median, fill = sample)) +
   geom_density(alpha=.2) +
